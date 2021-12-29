@@ -99,9 +99,9 @@ function addBlock(bodyData) {
 
 }
 
-addBlock(['transaction1'])
-addBlock(['transaction2'])
-addBlock(['transaction3'])
-addBlock(['transaction4'])
-addBlock(['transaction5'])
+//addBlock(['transaction1'])
+//addBlock(['transaction2'])
+//addBlock(['transaction3'])
+//addBlock(['transaction4'])
+//addBlock(['transaction5'])
 console.log(Blocks);
