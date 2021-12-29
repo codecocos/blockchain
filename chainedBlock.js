@@ -96,7 +96,7 @@ function nextBlock(bodyData) {
 // console.log(block1);
 
 function addBlock(bodyData) {
-  const newBlock = nextBlock(bodyData)
+  const newBlock = nextBlock([bodyData])
   Blocks.push(newBlock)
 
 }
@@ -108,4 +108,4 @@ addBlock(['transaction4'])
 addBlock(['transaction5'])
 console.log(Blocks);
 
-module.exports = { nextBlock, getLastBlock, createHash, Blocks, getVersion, getBlocks }
+module.exports = { nextBlock, getLastBlock, createHash, Blocks, getVersion, getBlocks, addBlock }
