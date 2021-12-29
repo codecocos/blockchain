@@ -38,6 +38,7 @@ function isValidNewBlock(newBlock, previousBlock) {
   return true
 }
 
+//블럭을 받아봐서 블럭으로 처리
 function addBlock(newBlock) {
   if (isValidNewBlock(newBlock, getLastBlock())) {
     Blocks.push(newBlock)

@@ -95,17 +95,18 @@ function nextBlock(bodyData) {
 // const block1 = nextBlock(['transaction1'])
 // console.log(block1);
 
+//바디(데이터)만 받아서 블럭에추가
 function addBlock(bodyData) {
   const newBlock = nextBlock([bodyData])
   Blocks.push(newBlock)
 
 }
 
-addBlock(['transaction1'])
-addBlock(['transaction2'])
-addBlock(['transaction3'])
-addBlock(['transaction4'])
-addBlock(['transaction5'])
-console.log(Blocks);
+// addBlock(['transaction1'])
+// addBlock(['transaction2'])
+// addBlock(['transaction3'])
+// addBlock(['transaction4'])
+// addBlock(['transaction5'])
+// console.log(Blocks);
 
-module.exports = { nextBlock, getLastBlock, createHash, Blocks, getVersion, getBlocks, addBlock }
+module.exports = { nextBlock, getLastBlock, createHash, Blocks, getVersion, getBlocks }
