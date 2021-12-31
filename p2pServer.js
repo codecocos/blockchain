@@ -61,7 +61,105 @@ function connectToPeers(newPeers) {
     }
   )
 }
+// Message Handler
+const MessageType = {
+	QUERY_LATEST: 0,
+	QUERY_ALL: 1,
+	RESPONSE_BLOCKCHAIN: 2
+}
 
+function initMessageHandler(ws) {
+	ws.on("message", (data) => {
+		const message = JSON.parse(data)
+
+		switch (message.type) {
+			case MessageType.QUERY_LATEST:
+				write(ws, responseLatestMsg());
+				break;
+			case MessageType.QUERY_ALL:
+				write(ws, responseAllChainMsg());
+				break;
+			case MessageType.RESPONSE_BLOCKCHAIN:
+				handleBlockChainResponse(message);
+				break;
+		}
+	})
+}
+
+function responseLatestMsg() {
+	return ({
+		"type": RESPONSE_BLOCKCHAIN,
+		"data": JSON.stringify([getLastBlock()])
+	})
+}
+
+function responseAllChainMsg() {
+	return ({
+		"type": RESPONSE_BLOCKCHAIN,
+		"data": JSON.stringify(getBlocks())
+	})
+}
+
+function handleBlockChainResponse(message) {
+	const receiveBlocks = JSON.parse(message.data)
+	const latestReceiveBlock = receiveBlocks[receiveBlocks.length - 1]
+	const latestMyBlock = getLastBlock()
+
+	//1. 데이터로 받은 블럭 중에 마지막 블럭의 인덱스가 내가 보유 중인 마지막 블럭의 인덱스보다 클 때 / 작을 때
+	//내가 가진 것 보다 짧은 것은 의미가 없음
+	if (latestReceiveBlock.header.index > latestMyBlock.header.index) {
+		//받은 마지막 블록의 이전 해시값이 내 마지막 블럭일 때 : addBlock
+		if (createHash(latestMyBlock) === latestReceiveBlock.header.previousHash) {
+			if (addBlock(latestReceiveBlock)) {
+				//나를 아는 주변 노드에게 변경사항을 전파
+				//서로의 피어을 다 공유하고 있는 상황? 
+				broadcast(responseLastestMsg())
+			}
+			else {
+				console.log("Invaild Block!!");
+			}
+		}
+		//받은 블럭의 전체 크기가 1일 때(제네시스 블럭 인 경우와 같다)
+		else if (receiveBlocks.length === 1) {
+			//블럭을 전체 다 달라고 요청하기
+			broadcast(queryAllMsg())
+		}
+		else {
+			//내 전체 블럭이 다른 블럭들보다 동기화가 안된 상황이므로 갈아끼우기
+			//내 원장이랑 다른 원장들과의 차이가 매우 큰 경우 : 원장간의 불일치를 해소해야 하는 상황
+			replaceChain(receiveBlocks)
+		}
+	}
+	else {
+		console.log("Do nothing.");
+	}
+
+}
+
+function queryAllMsg() {
+	return ({
+		"type": QUERY_ALL,
+		"data": null
+	})
+}
+
+function queryLatestMsg() {
+	return ({
+		"type": QUERY_LATEST,
+		"data": null
+	})
+}
+
+function initErrorHandler(ws) {
+	ws.on("close", () => { closeConnection(ws) })
+	ws.on("error", () => { closeConnection(ws) })
+}
+
+function closeConnection(ws) {
+	console.log(`Connection close${ws.url}`);
+	//소켓을 복사하는 데, 뒤에 있는 데이터를 넣어서 복사 : 즉 , 초기화 하는 것임 
+	sockets.splice(sockets.indexOf(ws), 1)
+}
 
 
 module.exports = { connectToPeers, getSockets }
