@@ -1,6 +1,7 @@
 //httpSever.js
 
 const express = require("express")
+const app = express()
 const bodyParser = require("body-parser")
 const { getBlocks, getVersion, nextBlock } = require('./chainedBlock')
 const { addBlock } = require('./checkVaildBlock')
@@ -10,7 +11,6 @@ const http_port = process.env.HTTP_PORT || 3001
 //env | grep HTTP_PORT 는 포트를 확인하는것 node창에 실행명령어
 
 function initHttpServer() {
-  const app = express()
   app.use(bodyParser.json())
 
   //6001은 내꺼 , 6002는 다른 노드라고 생각
@@ -69,4 +69,5 @@ initHttpServer();
 //curl -d '{"data":"HELLO"}' -H "Accept: application/json" -H "Content-Type: application/json" http://localhost:3001/mineblock
 
 //curl -H "Content-Type: application/json" --data "{\"data\":[\"Anything1\",\"Anything2\"]}" http://localhost:3001/mineBlock
+//curl -H "Content-Type: application/json" --data "{\"data\":[\"Anything1\",\"Anything2\"]}" http://localhost:3002/mineBlock
 

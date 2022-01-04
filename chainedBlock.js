@@ -29,11 +29,12 @@ function getVersion() {
   return JSON.parse(package).version
 }
 
+
 function createGenesisBlock() {
   const index = 0
   const version = getVersion()
   const previousHash = '0'.repeat(64) // 0을 64번 반복
-  const timestamp = parseInt(Date.now() / 1000) // 1000 나눈 이유 : 초 단위로 환산하기 위해
+  const timestamp = parseInt(Date.now() / 1000) // 1000으로 나눈 이유 : 초 단위로 환산하기 위해
   const body = ['Hello block!']
   const tree = merkle('sha256').sync(body)
   const merkleRoot = tree.root() || '0'.repeat(64)
@@ -97,16 +98,19 @@ function nextBlock(bodyData) {
 
 //바디(데이터)만 받아서 블럭에추가
 function addBlock(bodyData) {
-  const newBlock = nextBlock([bodyData])
+  const newBlock = nextBlock(bodyData)
   Blocks.push(newBlock)
-
 }
+
 
 // addBlock(['transaction1'])
 // addBlock(['transaction2'])
 // addBlock(['transaction3'])
 // addBlock(['transaction4'])
 // addBlock(['transaction5'])
+//addBlock('transaction1')
+
 // console.log(Blocks);
 
-module.exports = { nextBlock, getLastBlock, createHash, Blocks, getVersion, getBlocks }
+
+module.exports = { nextBlock, getLastBlock, createHash, Blocks, getVersion, getBlocks, createGenesisBlock }

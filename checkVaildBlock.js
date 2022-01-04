@@ -6,7 +6,7 @@
  */
 
 const merkle = require('merkle')
-const { nextBlock, getLastBlock, createHash, Blocks } = require('./chainedBlock')
+const { nextBlock, getLastBlock, createHash, Blocks, createGenesisBlock } = require('./chainedBlock')
 
 function isValidBlockStructure(block) {
   return typeof (block.header.version) === 'string'
@@ -47,10 +47,34 @@ function addBlock(newBlock) {
   return false;
 }
 
-const block = nextBlock(['cocoWorld'])
+
+//체인 단위로 확인
+function isValidChain(newBlocks) {
+  //제네시스 블럭이 일치하는 지 확인.
+  if (JSON.stringify(newBlocks[0]) !== JSON.stringify(Blocks[0])) {
+    return false
+  }
+
+  var tempBlocks = [newBlocks[0]];
+
+  for (var i = 1; i < newBlocks.length; i++) {
+    if (isValidNewBlock(newBlocks[i], tempBlocks[i - 1])) {
+      tempBlocks.push(newBlocks[i])
+    }
+    else {
+      return false;
+    }
+  }
+  return true;
+}
+
+
+const block = nextBlock(['new Transaction'])
 addBlock(block)
 
-console.log(Blocks);
+console.log(Blocks)
+
+
 
 
 module.exports = { addBlock }

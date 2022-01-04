@@ -1,6 +1,7 @@
 const p2p_port = process.env.P2P_PORT || 6001
 
-const WebSocket = require('ws')
+const WebSocket = require('ws');
+const { getLastBlock, getBlocks } = require('./chainedBlock');
 
 //원장을 주고 받을 때, 거래참여자가 다수
 //소켓이용해서 서버로 동작할 포트를 엶
@@ -19,6 +20,7 @@ initP2PServer(6003);
 let sockets = []
 function initConnection(ws) {
   sockets.push(ws)
+  initMessageHandler(ws)
 }
 
 function getSockets() {
@@ -62,6 +64,67 @@ function connectToPeers(newPeers) {
   )
 }
 
+
+//Message Handler
+//다른 노드에서 메시지를 받을때의 받는 메시지 (메세지를 받아서 처리)
+const MessageType = {
+  QUERY_LATEST: 0, //데이터필드에 내 블럭 중 가장 최신블럭을 담아서
+  QUERY_ALL: 1, //내 블럭체인 전체를 데이터에 담아서 회신
+  RESPONSE_BLOCKCHAIN: 2 //하나이상으 블록을 가지고 메세지를 보낼때 기재
+}
+
+function initMessageHandler(ws) {
+  ws.on("message", (data) => {
+    const message = JSON.parse(data)
+
+    switch (message.type) {
+      case MessageType.QUERY_LATEST:
+        write(ws, responseLatestMsg());
+        break;
+      case MessageType.QUERY_ALL:
+        write(ws, responseAllChainMsg());
+        break;
+      case MessageType.RESPONSE_BLOCKCHAIN:
+        handleBlockChainResponse(message);
+        break;
+    }
+  })
+}
+
+
+function responseLatestMsg() {
+  return ({
+    "type": RESPONSE_BLOCKCHAIN,
+    "data": JSON.stringify([getLastBlock()]) //제이슨으로 바꾸고 []로 형변환
+  })
+}
+
+function responseAllChainMsg() {
+  return ({
+    "type": RESPONSE_BLOCKCHAIN,
+    "data": JSON.stringify(getBlocks()) //제이슨으로 바꾸고, 이미 배열이니 형변환 필요없음
+  })
+}
+
+//블럭을 받았을때, 
+function handleBlockChainResponse() {
+
+}
+
+//요청을 보내는 함수 - http 에 넣어서 작동...
+function queryAllMsg() {
+  return ({
+    "type": QUERY_ALL,
+    "data": null
+  })
+}
+
+function queryLatestMsg() {
+  return ({
+    "type": QUERY_LATEST,
+    "data": null
+  })
+}
 
 
 module.exports = { connectToPeers, getSockets }
