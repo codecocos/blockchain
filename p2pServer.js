@@ -222,5 +222,16 @@ function queryLatestMsg() {
   })
 }
 
+function initErrorHandler(ws) {
+	ws.on("close", () => { closeConnection(ws) })
+	ws.on("error", () => { closeConnection(ws) })
+}
+
+function closeConnection(ws) {
+	console.log(`Connection close${ws.url}`);
+	//소켓을 복사하는 데, 뒤에 있는 데이터를 넣어서 복사 : 즉 , 초기화 하는 것임 
+	sockets.splice(sockets.indexOf(ws), 1)
+}
+
 
 module.exports = { connectToPeers, getSockets }
